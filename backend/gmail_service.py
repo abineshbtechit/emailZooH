@@ -8,12 +8,18 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from backend.config import settings
 
+def _get_clean_redirect_uri() -> str:
+    uri = settings.GOOGLE_REDIRECT_URI
+    if not uri or "cloudflare" in uri or "localhost" in uri:
+        return "https://email-zoo-h.vercel.app/api/auth/callback"
+    return uri
+
 def get_google_auth_url(telegram_id: str) -> str:
     """Generate clean Google OAuth consent URL carrying telegram_id in state."""
     base = "https://accounts.google.com/o/oauth2/v2/auth"
     params = {
         "client_id": settings.GOOGLE_CLIENT_ID,
-        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+        "redirect_uri": _get_clean_redirect_uri(),
         "response_type": "code",
         "access_type": "offline",
         "prompt": "consent",
@@ -29,7 +35,7 @@ def exchange_code_for_tokens(code: str) -> Tuple[Dict[str, Any], str]:
         "code": code,
         "client_id": settings.GOOGLE_CLIENT_ID,
         "client_secret": settings.GOOGLE_CLIENT_SECRET,
-        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+        "redirect_uri": _get_clean_redirect_uri(),
         "grant_type": "authorization_code"
     }
     

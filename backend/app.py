@@ -160,7 +160,10 @@ async def process_telegram_update(update: dict):
         return
 
     text_lower = text.lower()
-    connect_url = f"{settings.BASE_URL}/connect?telegram_id={chat_id}"
+    base_url = settings.BASE_URL
+    if not base_url or "cloudflare" in base_url or "localhost" in base_url:
+        base_url = "https://email-zoo-h.vercel.app"
+    connect_url = f"{base_url}/connect?telegram_id={chat_id}"
 
     # 1. /start or /help
     if text_lower in ["/start", "/help"]:
@@ -179,7 +182,7 @@ async def process_telegram_update(update: dict):
                 f"🔗 **[Click Here to Connect Your Gmail]({connect_url})**\n\n"
                 f"Or open this link:\n`{connect_url}`"
             )
-            keyboard = get_connect_keyboard(settings.BASE_URL)
+            keyboard = get_connect_keyboard(base_url)
             send_telegram_message(chat_id, msg, reply_markup=keyboard)
         return
 
@@ -192,7 +195,7 @@ async def process_telegram_update(update: dict):
                 f"Please connect your account first:\n\n"
                 f"🔗 **[Click Here to Connect Your Gmail]({connect_url})**"
             )
-            keyboard = get_connect_keyboard(settings.BASE_URL)
+            keyboard = get_connect_keyboard(base_url)
             send_telegram_message(chat_id, msg, reply_markup=keyboard)
             return
 
