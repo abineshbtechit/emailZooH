@@ -16,6 +16,14 @@ app = FastAPI(title=settings.APP_NAME)
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
+@app.get("/api/debug-headers")
+def debug_headers(request: Request):
+    return {
+        "headers": dict(request.headers),
+        "scope_path": request.scope.get("path"),
+        "url_path": request.url.path
+    }
+
 @app.get("/")
 @app.get("/api/index.py")
 def home():
