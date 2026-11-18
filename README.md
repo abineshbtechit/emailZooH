@@ -1,65 +1,107 @@
-# 📬 Telegram AI Gmail Assistant (Multi-Tenant Mini App)
+# 📬 emailZooH — AI-Powered Telegram Gmail Assistant
 
-A complete, live-ready application that lets **any user** connect their Gmail inside Telegram via a **Telegram Mini App** and receive clean, noise-free, AI-powered unread **Primary** email briefings on demand.
+A simple, fast, and secure Telegram bot that connects to your Gmail and delivers clean **AI summaries** of your **unread Primary emails received today** on demand.
 
----
-
-## 🌟 Highlights
-
-- **Native Telegram Mini App**: Runs directly inside Telegram on mobile and desktop — users never download or install another app.
-- **1-Click Google OAuth**: Users tap *"Connect My Gmail"* and sign in with Google directly inside the Telegram webview.
-- **Strict RFC Primary Inbox Filter**: Inspects email headers and drops 100% of newsletters, automated spam, promotional campaigns (`List-Unsubscribe`, `Feedback-ID`, `Precedence: bulk`), isolating only genuine human/primary messages.
-- **Gemini Flash AI Summarization**: Blazing fast, intelligent synthesis into clean Telegram cards:
-  - 🔴 **Action Required** (Deadlines, decisions, replies needed)
-  - 🟢 **General Messages** (One-sentence summaries)
-- **Multi-Tenant Ready**: Each user's tokens are isolated and mapped to their unique Telegram Chat ID.
-- **Zero-Setup Local Dev**: Works immediately with built-in SQLite database and Telegram long-polling (no ngrok required to start testing).
+Runs 100% in the cloud on **Vercel** — no local servers needed.
 
 ---
 
-## 🏗️ Project Architecture
+## 💡 What Does This Project Do?
+
+Most inboxes are flooded with promotional emails, newsletters, and automated notifications. Finding genuine emails that need attention is frustrating.
+
+**emailZooH solves this:**
+1. Text the Telegram bot: **`i want email`**.
+2. It fetches your inbox in real-time.
+3. It filters out **100% of marketing, promotions, and automated newsletters**.
+4. It extracts only real personal/work messages **received today**.
+5. Google's **Gemini AI** summarizes them into an executive briefing delivered back to your Telegram chat in seconds!
+
+---
+
+## 🔄 How It Works
+
+```mermaid
+flowchart TD
+    User([👤 User in Telegram]) -->|Sends '/start'| Bot[🤖 @ZooHHooZbot]
+    Bot -->|Returns 'Connect Gmail' button| User
+    User -->|Logs in via Google OAuth| MiniApp[📱 Telegram Mini App]
+    MiniApp -->|Saves secure access token| Database[(🗄️ Database)]
+    User -->|Sends 'i want email'| Bot
+    Bot -->|Fetches today's unread Primary emails| Gmail[✉️ Gmail API]
+    Gmail -->|Raw email snippets| Filter{🔍 Smart Filter}
+    Filter -->|Drops spam & newsletters| Gemini[🧠 Gemini Flash AI]
+    Gemini -->|Formats clean briefing| Bot
+    Bot -->|Delivers briefing card| User
+```
+
+---
+
+## ✨ Features
+
+* **📱 Telegram Mini App Integration:** Connect your Google account directly inside Telegram with 1 tap.
+* **🛡️ Strict Primary-Only Filter:** Inspects RFC email headers (`List-Unsubscribe`, `Feedback-ID`, `Precedence: bulk`) to eliminate promotional spam.
+* **📅 Today-Only Filter:** Strictly processes emails received during the current calendar day.
+* **🧠 Gemini Flash AI Briefings:** Neatly categorizes updates into:
+  * 🔴 **Action Required** (Tasks, replies, deadlines)
+  * 🟢 **General Messages** (1-sentence quick takeaways)
+* **☁️ 100% Cloud-Hosted:** Deployed serverless on **Vercel** with zero local dependencies.
+
+---
+
+## 📱 How to Use
+
+1. **Start the Bot:** Open Telegram and message [@ZooHHooZbot](https://t.me/ZooHHooZbot).
+2. **Link Account:** Send `/start` and tap the **Connect Gmail** button.
+3. **Get Your Briefing:** Send `i want email` anytime!
+
+---
+
+## 📁 Repository Structure
 
 ```
 gmail-updates/
-├── frontend/
-│   └── index.html               # Telegram Mini App UI (Mobile-responsive, Telegram WebApp SDK)
+├── api/
+│   └── index.py             # Vercel Serverless router & path middleware
 ├── backend/
-│   ├── app.py                   # FastAPI server (OAuth flow, webhooks, Mini App hosting)
-│   ├── config.py                # Environment & settings configuration
-│   ├── database.py              # SQLite (local) + Supabase (production) engine
-│   ├── gmail_service.py         # Google OAuth & strict Primary unread email filter
-│   ├── ai_service.py            # Gemini AI summarizer (clean Telegram Markdown format)
-│   ├── telegram_service.py      # Telegram Bot API client (buttons, messages)
-│   └── bot_polling.py           # Local polling engine (run without public webhook)
-├── .env.example                 # Environment variables template
-├── requirements.txt             # Python dependencies
-├── run_server.py                # Unified one-command runner
-├── CREDENTIALS_GUIDE.md         # Step-by-step instructions for getting all keys
-└── README.md                    # Project documentation
+│   ├── app.py               # FastAPI server (webhooks, auth, routes)
+│   ├── config.py            # Configuration & environment variables
+│   ├── database.py          # Dual storage (SQLite + Supabase)
+│   ├── gmail_service.py     # Gmail OAuth & strict header filtering
+│   ├── ai_service.py        # Gemini Flash AI summarizer
+│   └── telegram_service.py  # Telegram message & UI buttons
+├── frontend/
+│   ├── index.html           # Telegram Mini App UI
+│   └── privacy.html         # Public Privacy Policy
+├── vercel.json              # Vercel configuration
+├── requirements.txt         # Python dependencies
+└── PROJECT_GUIDE.md         # Detailed beginner-friendly guide
 ```
 
 ---
 
-## 🚀 Quickstart
+## ⚙️ Environment Variables
 
-### 1. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
+| Variable | Description |
+| :--- | :--- |
+| `TELEGRAM_BOT_TOKEN` | Bot API token from `@BotFather` |
+| `GOOGLE_CLIENT_ID` | OAuth Client ID from Google Cloud Console |
+| `GOOGLE_CLIENT_SECRET` | OAuth Client Secret from Google Cloud Console |
+| `GEMINI_API_KEY` | API key from Google AI Studio |
+| `BASE_URL` | Production URL (`https://email-zoo-h.vercel.app`) |
 
-### 2. Configure Environment
-Copy `.env.example` to `.env`:
-```bash
-cp .env.example .env
-```
-Fill in the 3 essential keys (see [CREDENTIALS_GUIDE.md](file:///d:/projects/ZOOH%20-%20nextLen/gmail-updates/CREDENTIALS_GUIDE.md)):
-- `TELEGRAM_BOT_TOKEN`
-- `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET`
-- `GEMINI_API_KEY`
+---
 
-### 3. Run the App
-```bash
-python run_server.py
-```
-- FastAPI server runs on `http://localhost:8000`.
-- Telegram bot starts listening automatically.
+## 🔒 Privacy & Security
+
+* **Read-Only:** The bot only requests `gmail.readonly` permission. It cannot send or delete emails.
+* **Transient:** Emails are summarized in real-time in memory and never stored on disk.
+* **Revocable:** Disconnect at any time from [Google Permissions](https://myaccount.google.com/permissions).
+
+---
+
+## 🌐 Live Links
+
+* **Telegram Bot:** [@ZooHHooZbot](https://t.me/ZooHHooZbot)
+* **Production App:** [https://email-zoo-h.vercel.app](https://email-zoo-h.vercel.app)
+* **Privacy Policy:** [https://email-zoo-h.vercel.app/privacy](https://email-zoo-h.vercel.app/privacy)
