@@ -17,6 +17,7 @@ app = FastAPI(title=settings.APP_NAME)
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
 @app.get("/")
+@app.get("/api/index.py")
 def home():
     return {"status": "running", "app": settings.APP_NAME, "version": "1.0.0"}
 
