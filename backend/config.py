@@ -11,10 +11,24 @@ def get_default_db_path() -> str:
         return os.path.join(tempfile.gettempdir(), "users.db")
     return "users.db"
 
+def get_base_url() -> str:
+    val = os.getenv("BASE_URL", "")
+    if not val or "cloudflare" in val or "localhost" in val:
+        if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+            return "https://email-zoo-h.vercel.app"
+    return val or "https://email-zoo-h.vercel.app"
+
+def get_redirect_uri() -> str:
+    val = os.getenv("GOOGLE_REDIRECT_URI", "")
+    if not val or "cloudflare" in val or "localhost" in val:
+        if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+            return "https://email-zoo-h.vercel.app/api/auth/callback"
+    return val or "https://email-zoo-h.vercel.app/api/auth/callback"
+
 class Settings(BaseSettings):
     # App
     APP_NAME: str = "Telegram Gmail Assistant"
-    BASE_URL: str = os.getenv("BASE_URL", "https://email-zoo-h.vercel.app")
+    BASE_URL: str = get_base_url()
     
     # Telegram
     TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
@@ -23,7 +37,7 @@ class Settings(BaseSettings):
     # Google OAuth
     GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
     GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
-    GOOGLE_REDIRECT_URI: str = os.getenv("GOOGLE_REDIRECT_URI", "https://email-zoo-h.vercel.app/api/auth/callback")
+    GOOGLE_REDIRECT_URI: str = get_redirect_uri()
     
     # Gemini AI
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
