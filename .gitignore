@@ -1,0 +1,10 @@
+.env
+users.db
+cloudflared.exe
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+*.log
